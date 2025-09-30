@@ -1,15 +1,79 @@
 import discord
+import requests
+import pyttsx3
 from discord.ext import commands
+import random
 
 
+def talk(text):
+    engine = pyttsx3.init()
+    rate = engine.getProperty("rate")
+    engine.setProperty("rate", 95)
+    volume = engine.getProperty("volume")
+    engine.setProperty("volume", 0.9)  
+    voices = engine.getProperty("voices")
+    engine.setProperty("voice", voices[0].id)
+    pitch = engine.getProperty("pitch")
+    engine.setProperty("pitch", 60)
+    engine.say(text)
+    engine.runAndWait()
+
+
+'#permisos'
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = commands.Bot(command_prefix='$', intents=intents)
+
+aconsejar = ['Para salvar al medio ambiente puedes hacer muchas cosas']
+problemas = ['Cuando']
+pregunta = {'Preguntando':'1'}
+
+'#crear bot'
+bot = commands.Bot(command_prefix ="/", intents =intents)
 
 
-@bot.event
-async def on_ready():
-    print(f'We have logged in as {bot.user}')
+@bot.command()
+async def hola(ctx):
+    await ctx.send('Hola soy tu bot de discord del clima :D')
+    talk('Hola soy tu bot de discord del clima :D')
 
-bot.run("Escribe aqui tu token")
+
+def obtener_clima(ciudad: str) -> str:
+    url = f"https://wttr.in/{ciudad}?format=%C+%t&lang=es"
+    respuesta = requests.get(url)
+    if respuesta.status_code == 200:
+        return respuesta.text.strip()
+    else:
+        return 'No pudimos conectarnos con la API'
+
+
+@bot.command()
+async def clima(ctx, *, ciudad: str):
+    prediccion = obtener_clima(ciudad)
+    await ctx.send(f'El clima en {ciudad} es: {prediccion}')
+    talk(f'El clima en {ciudad} es: {prediccion}')
+
+
+@bot.command()
+async def consejos(ctx):
+    consejo = random.choice(aconsejar)
+    await ctx.send(f'Tu consejo sobre el medio ambiente es: {consejo}')
+    talk(f'Tu consejo sobre el medio ambiente es: {consejo}')
+
+
+@bot.command()
+async def consecuencias(ctx):
+    cons = random.choice(problemas)
+    await ctx.send(f'Si no hacemos un cambio podria ocurrir {cons}')
+    talk(f'Si no hacemos un cambio podria ocurrir {cons}')
+
+
+@bot.command()
+async def juego(ctx):
+    preguntas =random.choice(pregunta)
+    await ctx.send(f'Vamos a jugar un juego: {pregunta}')
+    resp =str(input())
+    if resp==
+
+
+bot.run('Escribe tu token')
