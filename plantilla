@@ -3,6 +3,7 @@ import requests
 import pyttsx3
 from discord.ext import commands
 import random
+import asyncio
 
 
 def talk(text):
@@ -24,9 +25,50 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 
-aconsejar = ['Para salvar al medio ambiente puedes hacer muchas cosas']
-problemas = ['Cuando']
-pregunta = {'Preguntando':'1'}
+aconsejar = ['Usa menos el carro: camina, usa bicicleta o transporte público siempre que puedas.',
+             'Ahorra energía en casa: apaga luces y aparatos cuando no los uses.',
+             'Cambia a bombillas LED: consumen menos electricidad y duran más.',
+             'Reduce, reutiliza y recicla: menos basura significa menos contaminación.',
+             'Consume menos carne roja: la ganadería produce grandes cantidades de metano.',
+             'Prefiere alimentos locales y de temporada: así se reducen emisiones del transporte.',
+             'Planta árboles: absorben dióxido de carbono y dan oxígeno.',
+             'Cuida el agua: toma duchas cortas y evita desperdiciar.',
+             'Usa energías renovables si puedes: como paneles solares o energía eólica.',
+             'Evita el plástico de un solo uso: lleva tu propia bolsa, termo o botella reutilizable.',
+             'Apoya políticas ambientales: elige líderes y proyectos que protejan el planeta',
+             'Repara en lugar de desechar: alarga la vida de tus aparatos y ropa.',
+             'Comparte el carro (carpooling): menos autos = menos emisiones.',
+             'Cuida los ecosistemas: no tires basura en ríos, playas o montañas.',
+             'Informa y educa a otros: comparte lo que aprendes sobre el cambio climático.',
+             ]
+problemas = ['Aumento del nivel del mar que inundará ciudades costeras.',
+             'Olas de calor más intensas y frecuentes que pondrán en riesgo la salud.',
+             'Sequías prolongadas que afectarán la producción de alimentos.',
+             'Huracanes y tormentas más destructivos.',
+             'Desaparición de especies animales y vegetales por pérdida de hábitat.',
+             'Derretimiento acelerado de glaciares y casquetes polares.',
+             'Escasez de agua dulce para millones de personas.',
+             'Expansión de enfermedades transmitidas por mosquitos, como dengue o malaria.',
+             'Acidificación de los océanos que dañará corales y la vida marina.',
+             'Migraciones masivas de personas por desastres naturales y falta de recursos.',
+             ]
+preguntas = preguntas = [
+    {"pregunta": "¿Cuál es el principal gas de efecto invernadero emitido por la actividad humana?", "respuesta": "dioxido de carbono"},
+    {"pregunta": "¿Qué sector económico es el que más contribuye a las emisiones globales de gases de efecto invernadero?", "respuesta": "produccion de energia"},
+    {"pregunta": "¿Qué acuerdo internacional busca limitar el aumento de la temperatura global a menos de 2 °C respecto a niveles preindustriales?", "respuesta": "acuerdo de Paris"},
+    {"pregunta": "El deshielo de los glaciares y casquetes polares contribuye principalmente a:", "respuesta": "el aumento del nivel del mar"},
+    {"pregunta": "¿En qué capa de la atmósfera ocurre el efecto invernadero?", "respuesta": "troposfera"},
+    {"pregunta": "¿Qué océano es el más afectado por la acidificación debido al exceso de CO₂?", "respuesta": "pacifico"},
+    {"pregunta": "¿Qué país es actualmente el mayor emisor de dióxido de carbono en el mundo?", "respuesta": "china"},
+    {"pregunta": "¿Qué fenómeno climático extremo se vuelve más frecuente e intenso debido al calentamiento global?", "respuesta": "olas de calor"},
+    {"pregunta": "¿Qué capa de hielo del hemisferio norte se está derritiendo rápidamente por el aumento de temperaturas?", "respuesta": "groenlandia"},
+    {"pregunta": "¿Qué actividad humana es la principal causa de la deforestación en la Amazonía?", "respuesta": "gaanderia"},
+    {"pregunta": "¿Qué gas de efecto invernadero es producido por el ganado durante la digestión?", "respuesta": "metano"},
+    {"pregunta": "¿Qué continente es considerado el más vulnerable al cambio climático por su baja capacidad de adaptación?", "respuesta": "africa"},
+    {"pregunta": "¿Qué energía renovable utiliza el movimiento del aire para generar electricidad?", "respuesta": "energia eolica"},
+    {"pregunta": "¿Cuál es la principal causa de la acidificación de los océanos?", "respuesta": "absorcion de dioxido de carbono"},
+    {"pregunta": "¿Qué año se firmó el Acuerdo de París sobre cambio climático?", "respuesta": "2015"},
+]
 
 '#crear bot'
 bot = commands.Bot(command_prefix ="/", intents =intents)
@@ -64,16 +106,34 @@ async def consejos(ctx):
 @bot.command()
 async def consecuencias(ctx):
     cons = random.choice(problemas)
-    await ctx.send(f'Si no hacemos un cambio podria ocurrir {cons}')
+    await ctx.send(f'Si no hacemos un cambio podria ocurrir: {cons}')
     talk(f'Si no hacemos un cambio podria ocurrir {cons}')
 
 
 @bot.command()
-async def juego(ctx):
-    preguntas =random.choice(pregunta)
-    await ctx.send(f'Vamos a jugar un juego: {pregunta}')
-    resp =str(input())
-    if resp==
+async def trivia(ctx):
+    # Elegir una pregunta aleatoria
+    pregunta = random.choice(preguntas)
+
+    await ctx.send(f"🎲 **Trivia:** {pregunta['pregunta']}\n(¡Tienes 30 segundos para responder!)")
+    talk(f"Trivia {pregunta['pregunta']}")
+
+    def check(m):
+        return m.channel == ctx.channel and m.author == ctx.author
+
+    try:
+        # Esperar respuesta del mismo usuario (30 segundos)
+        msg = await bot.wait_for("message", timeout=30.0, check=check)
+
+        if msg.content.lower() == pregunta["respuesta"]:
+            await ctx.send(f"✅ ¡Correcto {ctx.author.mention}! 🎉")
+            talk('Eres el mejor')
+        else:
+            await ctx.send(f"❌ Incorrecto. La respuesta era **{pregunta['respuesta']}**.")
+            talk(f"Has fallado, la respuesta era {pregunta['respuesta']}")
+    except asyncio.TimeoutError:
+        await ctx.send("⏰ Se acabó el tiempo...")
+        talk('Vaya, tu tiempo se termino')
 
 
 bot.run('Escribe tu token')
