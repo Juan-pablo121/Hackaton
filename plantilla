@@ -1,9 +1,13 @@
+'#Importamos las bibliotecas necesarias'
 import discord
 import requests
 import pyttsx3
 from discord.ext import commands
 import random
 import asyncio
+
+
+'#Creamos la funcion que permite al bot hablar'
 
 
 def talk(text):
@@ -25,6 +29,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 
+'#Creamos la lista de consejos'
 aconsejar = ['Usa menos el carro: camina, usa bicicleta o transporte público siempre que puedas.',
              'Ahorra energía en casa: apaga luces y aparatos cuando no los uses.',
              'Cambia a bombillas LED: consumen menos electricidad y duran más.',
@@ -41,6 +46,9 @@ aconsejar = ['Usa menos el carro: camina, usa bicicleta o transporte público si
              'Cuida los ecosistemas: no tires basura en ríos, playas o montañas.',
              'Informa y educa a otros: comparte lo que aprendes sobre el cambio climático.',
              ]
+
+
+'#Creamos la lista de consecuencias'
 problemas = ['Aumento del nivel del mar que inundará ciudades costeras.',
              'Olas de calor más intensas y frecuentes que pondrán en riesgo la salud.',
              'Sequías prolongadas que afectarán la producción de alimentos.',
@@ -52,6 +60,8 @@ problemas = ['Aumento del nivel del mar que inundará ciudades costeras.',
              'Acidificación de los océanos que dañará corales y la vida marina.',
              'Migraciones masivas de personas por desastres naturales y falta de recursos.',
              ]
+
+'#Creamos la lista y diccionarios de la trivia'
 preguntas = preguntas = [
     {"pregunta": "¿Cuál es el principal gas de efecto invernadero emitido por la actividad humana?", "respuesta": "dioxido de carbono"},
     {"pregunta": "¿Qué sector económico es el que más contribuye a las emisiones globales de gases de efecto invernadero?", "respuesta": "produccion de energia"},
@@ -80,6 +90,9 @@ async def hola(ctx):
     talk('Hola soy tu bot de discord del clima :D')
 
 
+'#Funcion para obtener el clima'
+
+
 def obtener_clima(ciudad: str) -> str:
     url = f"https://wttr.in/{ciudad}?format=%C+%t&lang=es"
     respuesta = requests.get(url)
@@ -89,11 +102,17 @@ def obtener_clima(ciudad: str) -> str:
         return 'No pudimos conectarnos con la API'
 
 
+'#Comando para obtener el clima'
+
+
 @bot.command()
 async def clima(ctx, *, ciudad: str):
     prediccion = obtener_clima(ciudad)
     await ctx.send(f'El clima en {ciudad} es: {prediccion}')
     talk(f'El clima en {ciudad} es: {prediccion}')
+
+
+'#Comando de consejos'
 
 
 @bot.command()
@@ -103,6 +122,9 @@ async def consejos(ctx):
     talk(f'Tu consejo sobre el medio ambiente es: {consejo}')
 
 
+'#Comando de consecuencias'
+
+
 @bot.command()
 async def consecuencias(ctx):
     cons = random.choice(problemas)
@@ -110,9 +132,12 @@ async def consecuencias(ctx):
     talk(f'Si no hacemos un cambio podria ocurrir {cons}')
 
 
+'#Comando de la trivia'
+
+
 @bot.command()
 async def trivia(ctx):
-    # Elegir una pregunta aleatoria
+    '# Elegir una pregunta aleatoria'
     pregunta = random.choice(preguntas)
 
     await ctx.send(f"🎲 **Trivia:** {pregunta['pregunta']}\n(¡Tienes 30 segundos para responder!)")
@@ -122,7 +147,7 @@ async def trivia(ctx):
         return m.channel == ctx.channel and m.author == ctx.author
 
     try:
-        # Esperar respuesta del mismo usuario (30 segundos)
+        '# Esperar respuesta del mismo usuario (30 segundos)'
         msg = await bot.wait_for("message", timeout=30.0, check=check)
 
         if msg.content.lower() == pregunta["respuesta"]:
